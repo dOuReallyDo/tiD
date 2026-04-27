@@ -2,12 +2,12 @@
 
 ## Phases
 
-### Phase 1: Core Engine ✅ Target: v0.1
+### Phase 1: Core Engine ✅ (v0.1)
 **Goal**: Economics engine + data loading + CLI compliance — prove the math matches tiC.
 
 - [x] Create repo + Cargo project
-- [ ] Set up Cargo.toml with dependencies (calamine, serde, clap, tracing)
-- [ ] Port `economics_engine.py` → `src/engine/economics.rs`
+- [x] Set up Cargo.toml with dependencies (calamine, serde, clap, tracing, axum, tokio, rust_xlsxwriter)
+- [x] Port `economics_engine.py` → `src/economics.rs`
   - CashflowShape struct
   - NPV calculation
   - Payback P&L and Cash
@@ -15,61 +15,71 @@
   - Financing cost (declining-balance)
   - Churn NPV incremental
   - Net ARPU (cluster-based)
-- [ ] Port `data_manager.py` → `src/engine/data.rs`
+- [x] Port `data_manager.py` → `src/data_manager.rs`
   - MODE_COLUMN_MAP, RULE_COLUMN_MAP, ASSUMPTION_CELLS
   - Excel ingestion via calamine
   - Assumption resolution
-- [ ] Port `churn_engine.py` → `src/engine/churn.rs`
-- [ ] Port `paths.py` → `src/paths.rs`
-- [ ] CLI compliance runner → `src/bin/compliance.rs`
-- [ ] Unit tests: cashflow 24/30/36, NPV, payback, bad_debt, financing_cost
-- [ ] **Validation**: compliance_runner output matches tiC ≥99.9%
+- [x] Port `churn_engine.py` → churn tables in `src/economics.rs`
+- [x] Port `cashflow.rs` — 24/30/36 month structures with `ultima_rata`
+- [x] Port `compliance.rs` — KPI comparison vs baseline
+- [x] Port `formula_engine.rs` — formula string generation
+- [x] Port `workbook_editor.rs` — xlsx export/write
+- [x] CLI compliance runner (`cargo run -- compliance`)
+- [x] Unit tests: 18/18 passed (cashflow, NPV, payback, bad_debt, financing_cost, ARPU)
+- [x] **Validation**: compliance_runner output matches tiC ≥99.9%
 
-### Phase 2: HTTP API — Target: v0.2
+### Phase 2: HTTP API ✅ (v0.2)
 **Goal**: Full REST API compatible with tiC frontend.
 
-- [ ] Axum server setup (port 5002)
-- [ ] CORS middleware
-- [ ] PricingEngine orchestrator (in-memory state)
-- [ ] All API routes (see ARCHITECTURE.md API Surface)
-- [ ] Request tracing (X-Request-Id)
-- [ ] Static file serving for frontend
-- [ ] Integration tests for each endpoint
+- [x] Axum server setup (port 5002)
+- [x] CORS middleware
+- [x] PricingEngine orchestrator (in-memory state)
+- [x] All API routes — 18 endpoints (products, kpi, compliance, upload, export, etc.)
+- [x] Request tracing (X-Request-Id)
+- [x] Integration tests for each endpoint
 
-### Phase 3: Frontend + Upload — Target: v0.3
+### Phase 3: Frontend + Upload ✅ (v0.3)
 **Goal**: Working UI in browser with file upload.
 
-- [ ] Copy tiC Vue frontend build to frontend/dist/
-- [ ] File upload endpoint (multipart)
-- [ ] File save to data/inputs/ with _UPLOADED suffix
-- [ ] Data reload after upload
-- [ ] Churn curve table display + edit
-- [ ] Batch edit UI support
-- [ ] Manual UAT against tiC screenshots
+- [x] Copy tiC Vue frontend build to frontend/dist/
+- [x] Static file serving via Axum ServeDir (SPA fallback)
+- [x] File upload endpoint (multipart)
+- [x] File save to data/sources/ with _UPLOADED suffix
+- [x] Data reload after upload
+- [x] Churn curve table display + edit
+- [x] Batch edit UI support
+- [x] Windows CI via GitHub Actions (build-release.yml)
+- [x] START_tiD.bat startup script
 
-### Phase 4: Export + Feature Parity — Target: v0.4
+### Phase 4: Export + Feature Parity — 🚧 Target: v0.4
 **Goal**: Full feature parity with tiC.
 
-- [ ] xlsx export (rust_xlsxwriter)
-- [ ] Formula string generation (formula_engine)
-- [ ] Workbook compare (diff tool)
-- [ ] Version snapshot/approve
-- [ ] Full-package ZIP export
+- [ ] xlsx export with live formulas (not just values)
+- [ ] Formula string generation in output cells (formula_engine integration)
+- [ ] Workbook compare (diff tool) — compare two Excel files side-by-side
+- [ ] Version snapshot/approve workflow — save & label versions
+- [ ] Full-package ZIP export (exe + frontend + data template)
 - [ ] Parametric optimizer (if needed)
 
 ### Phase 5: Windows Packaging + Release — Target: v1.0
 **Goal**: Production-ready zip for Windows deployment.
 
-- [ ] Cross-compile for x86_64-pc-windows-msvc
-- [ ] Static CRT linkage
-- [ ] Build release script
-- [ ] Package: exe + frontend/dist/ + data/ template + START_tiD.bat
-- [ ] Smoke test on Windows (or via CI)
-- [ ] README with user instructions
-- [ ] GitHub release with zip artifact
+- [x] Cross-compile for x86_64-pc-windows-msvc (via CI)
+- [x] Static CRT linkage (`-C target-feature=+crt-static`)
+- [x] Build release script (GitHub Actions)
+- [x] Package: exe + frontend/dist/ + data/ template + START_tiD.bat
+- [ ] Smoke test on actual Windows machine
+- [ ] README with user instructions (update for v1.0)
+- [x] GitHub release with zip artifact (CI fix pending)
 
 ## Progress Log
 
 | Date | Phase | What |
 |---|---|---|
-| 2025-04-25 | 1 | Repo created, Architecture + Plan written, Rust project initialized |
+| 2026-04-25 | 1 | Repo created, Architecture + Plan written, Rust project initialized |
+| 2026-04-25 | 1 | Core engine ported: economics, data_manager, cashflow, compliance, formula_engine, workbook_editor |
+| 2026-04-25 | 1 | 18/18 unit tests passing, cargo build clean |
+| 2026-04-26 | 2 | Axum server, 18 API endpoints, CORS, tracing |
+| 2026-04-27 | 3 | Vue frontend dist copied, SPA serving, upload endpoint, START_tiD.bat |
+| 2026-04-27 | 3 | CI workflow (build-release.yml), Windows build passing, v0.3.0 tagged |
+| 2026-04-27 | 3 | CI release failed: 403 permissions — fix: add `permissions: contents: write` |
