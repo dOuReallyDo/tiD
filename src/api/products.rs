@@ -4,6 +4,7 @@ use axum::{extract::{Path, State}, Json};
 use serde_json::json;
 use crate::api::error::ApiError;
 use crate::engine::pricing::SharedEngine;
+use crate::engine::versioning::VersionManager;
 
 pub async fn list_products(
     State(engine): State<SharedEngine>,
@@ -55,7 +56,7 @@ pub async fn get_product(
     let engine = engine.read().await;
     let product = engine.get_product(&id)
         .ok_or_else(|| ApiError::NotFound(format!("Product not found: {}", id)))?;
-    
+
     Ok(Json(json!({
         "id": product.id,
         "name": product.name,
@@ -82,10 +83,10 @@ pub async fn edit_product(
 ) -> Result<Json<serde_json::Value>, ApiError> {
     let mut engine = engine.write().await;
     engine.edit_product(&id, &body.mode, &body.field, body.value)?;
-    
+
     let product = engine.get_product(&id)
         .ok_or_else(|| ApiError::NotFound(format!("Product not found: {}", id)))?;
-    
+
     Ok(Json(json!({
         "id": product.id,
         "mode": body.mode,
@@ -95,12 +96,34 @@ pub async fn edit_product(
     })))
 }
 
+#[derive(serde::Deserialize)]
+pub struct ApproveRequest {
+    pub label: Option<String>,
+}
+
 pub async fn approve_product(
-    State(_engine): State<SharedEngine>,
+    State(engine): State<SharedEngine>,
     Path(id): Path<String>,
+    Json(body): Json<ApproveRequest>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
-    // TODO: Version snapshot logic
-    Ok(Json(json!({ "id": id, "status": "approved", "version": "v1" })))
+    let engine = engine.read().await;
+    let _product = engine.get_product(&id)
+        .ok_or_else(|| ApiError::NotFound(format!("Product not found: {}", id)))?;
+
+    // Create version snapshot
+    let label = body.label.unwrap_or_else(|| format!("approve-{}", id));
+    let version = VersionManager::snapshot(&engine.products, &engine.assumptions, &label)?;
+
+    // Mark as approved
+    VersionManager::approve_version(&version.id)?;
+
+    Ok(Json(json!({
+        "id": id,
+        "status": "approved",
+        "version_id": version.id,
+        "version_label": version.label,
+        "timestamp": version.timestamp,
+    })))
 }
 
 #[derive(serde::Deserialize)]
@@ -117,13 +140,13 @@ pub async fn batch_edit(
 ) -> Result<Json<serde_json::Value>, ApiError> {
     let mut engine = engine.write().await;
     let mut updated = Vec::new();
-    
+
     for id in &body.product_ids {
         if engine.edit_product(id, &body.mode, &body.field, body.value).is_ok() {
             updated.push(id.clone());
         }
     }
-    
+
     Ok(Json(json!({
         "updated": updated,
         "count": updated.len(),
@@ -133,6 +156,10 @@ pub async fn batch_edit(
 pub async fn list_versions(
     State(_engine): State<SharedEngine>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
-    // TODO: Version history
-    Ok(Json(json!({ "versions": [] })))
+    let versions = VersionManager::list_versions()?;
+
+    Ok(Json(json!({
+        "versions": versions,
+        "count": versions.len(),
+    })))
 }

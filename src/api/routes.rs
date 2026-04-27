@@ -33,6 +33,7 @@ pub fn create_router(engine: SharedEngine) -> Router {
         .route("/api/export/fasce_request", post(export::export_fasce_request))
         .route("/api/export/fasce_config", post(export::export_fasce_config))
         .route("/api/export/full-package", post(export::export_full_package))
+        .route("/api/export/compare", post(export::compare_workbooks))
         .route("/api/upload", post(upload::upload_file))
         .route("/api/assumptions", get(assumptions::get_assumptions).post(assumptions::update_assumptions))
         .route("/api/churn", get(churn::get_churn).post(churn::update_churn))
