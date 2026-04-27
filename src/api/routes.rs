@@ -3,6 +3,7 @@
 use axum::{routing::{get, post}, Router, Json};
 use tower_http::cors::{CorsLayer, Any};
 use tower_http::trace::TraceLayer;
+use tower_http::services::{ServeDir, ServeFile};
 use serde_json::json;
 
 use crate::engine::pricing::SharedEngine;
@@ -12,13 +13,16 @@ use crate::api::upload;
 use crate::api::assumptions;
 use crate::api::churn;
 use crate::api::compliance;
+use crate::paths;
 
 async fn health() -> Json<serde_json::Value> {
     Json(json!({ "status": "ok" }))
 }
 
 pub fn create_router(engine: SharedEngine) -> Router {
-    Router::new()
+    let frontend_dir = paths::frontend_dir();
+    
+    let api_routes = Router::new()
         .route("/api/health", get(health))
         .route("/api/products", get(products::list_products))
         .route("/api/product/{id}", get(products::get_product))
@@ -35,7 +39,17 @@ pub fn create_router(engine: SharedEngine) -> Router {
         .route("/api/compliance", post(compliance::run_compliance))
         .route("/api/batch-edit", post(products::batch_edit))
         .route("/api/versions", get(products::list_versions))
+        .with_state(engine);
+
+    // SPA fallback: serve index.html when a static file isn't found
+    // (required for Vue Router history mode — all non-API, non-file routes
+    //  must return index.html so the client-side router can handle them)
+    let index_html = frontend_dir.join("index.html");
+
+    Router::new()
+        .merge(api_routes)
+        // Serve static frontend files with SPA fallback
+        .fallback_service(ServeDir::new(frontend_dir).fallback(ServeFile::new(index_html)))
         .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any))
         .layer(TraceLayer::new_for_http())
-        .with_state(engine)
 }
