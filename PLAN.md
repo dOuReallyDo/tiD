@@ -51,15 +51,15 @@
 - [x] Windows CI via GitHub Actions (build-release.yml)
 - [x] START_tiD.bat startup script
 
-### Phase 4: Export + Feature Parity — 🚧 Target: v0.4
+### Phase 4: Export + Feature Parity ✅ (v0.4)
 **Goal**: Full feature parity with tiC.
 
-- [ ] xlsx export with live formulas (not just values)
-- [ ] Formula string generation in output cells (formula_engine integration)
-- [ ] Workbook compare (diff tool) — compare two Excel files side-by-side
-- [ ] Version snapshot/approve workflow — save & label versions
-- [ ] Full-package ZIP export (exe + frontend + data template)
-- [ ] Parametric optimizer (if needed)
+- [x] xlsx export with live formulas (formula_engine → cells with Excel formulas)
+- [x] Formula string generation in output cells (formula_engine integration)
+- [x] Workbook compare (diff tool) — compare two Excel files cell-by-cell
+- [x] Version snapshot/approve workflow — save & label versions
+- [x] Full-package ZIP export (exe + frontend + data template)
+- [ ] Parametric optimizer (deferred to v0.5)
 
 ### Phase 5: Windows Packaging + Release — Target: v1.0
 **Goal**: Production-ready zip for Windows deployment.
