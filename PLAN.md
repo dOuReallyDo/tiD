@@ -61,16 +61,19 @@
 - [x] Full-package ZIP export (exe + frontend + data template)
 - [ ] Parametric optimizer (deferred to v0.5)
 
-### Phase 5: Windows Packaging + Release — Target: v1.0
+### Phase 5: Windows Packaging + Release — ✅ v1.0
 **Goal**: Production-ready zip for Windows deployment.
 
 - [x] Cross-compile for x86_64-pc-windows-msvc (via CI)
 - [x] Static CRT linkage (`-C target-feature=+crt-static`)
 - [x] Build release script (GitHub Actions)
-- [x] Package: exe + frontend/dist/ + data/ template + START_tiD.bat
-- [ ] Smoke test on actual Windows machine
-- [ ] README with user instructions (update for v1.0)
-- [x] GitHub release with zip artifact (CI fix pending)
+- [x] Package: exe + frontend/dist/ + data/sources/ + START_tiD.bat
+- [x] data/sources/ Excel files bundled in ZIP (CI + build_release.sh)
+- [x] BUG FIX: base_dir() usa current_exe() — portabile su Windows da qualsiasi CWD
+- [x] BUG FIX: frontend title corretto ("tiD" invece di "tiC")
+- [x] README user-facing v1.0 (deploy Windows, istruzioni Excel, sezione developer)
+- [ ] Smoke test on actual Windows machine (da fare su VM o hardware fisico)
+- [x] GitHub release with zip artifact
 
 ## Progress Log
 
@@ -83,3 +86,4 @@
 | 2026-04-27 | 3 | Vue frontend dist copied, SPA serving, upload endpoint, START_tiD.bat |
 | 2026-04-27 | 3 | CI workflow (build-release.yml), Windows build passing, v0.3.0 tagged |
 | 2026-04-27 | 3 | CI release failed: 403 permissions — fix: add `permissions: contents: write` |
+| 2026-05-15 | 5 | BUG FIX: paths.rs base_dir() → current_exe(); frontend title tiC→tiD; data/sources in CI+script; README v1.0; tag v1.0.0 |

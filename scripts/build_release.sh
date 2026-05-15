@@ -59,10 +59,22 @@ else
   echo "WARNING: frontend/dist/ is empty or missing — frontend not included"
 fi
 
-# Copy startup script and readme
+# Copy data sources (factory Excel files)
+if [ -d "${PROJECT_ROOT}/data/sources" ] && [ "$(ls -A "${PROJECT_ROOT}/data/sources" 2>/dev/null)" ]; then
+  echo "Including data sources..."
+  cp -r "${PROJECT_ROOT}/data/sources/"* "${DIST_DIR}/data/sources/"
+else
+  echo "WARNING: data/sources/ is empty or missing — Excel factory files not included"
+fi
+
+# Copy startup scripts and readme
 if [ -f "${PROJECT_ROOT}/START_tiD.command" ]; then
   cp "${PROJECT_ROOT}/START_tiD.command" "${DIST_DIR}/START_tiD.command"
   chmod +x "${DIST_DIR}/START_tiD.command"
+fi
+
+if [ -f "${PROJECT_ROOT}/START_tiD.bat" ]; then
+  cp "${PROJECT_ROOT}/START_tiD.bat" "${DIST_DIR}/START_tiD.bat"
 fi
 
 if [ -f "${PROJECT_ROOT}/README.md" ]; then

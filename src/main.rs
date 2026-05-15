@@ -62,6 +62,8 @@ async fn run_server(port: u16) -> anyhow::Result<()> {
     println!("================================");
     println!();
 
+    tracing::info!("Base dir: {}", paths::base_dir().display());
+
     // Ensure data directories exist
     paths::ensure_data_dirs()?;
 

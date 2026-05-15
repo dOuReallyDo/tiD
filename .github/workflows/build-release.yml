@@ -55,6 +55,11 @@ jobs:
             cp -r frontend/dist/* dist/tiD/frontend/dist/
           fi
 
+          # Copy data sources (factory Excel files)
+          if [ -d "data/sources" ] && [ "$(ls -A data/sources 2>/dev/null)" ]; then
+            cp -r data/sources/* dist/tiD/data/sources/
+          fi
+
           # Copy startup batch file
           cp START_tiD.bat dist/tiD/START_tiD.bat
 

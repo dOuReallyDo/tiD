@@ -10,9 +10,17 @@ use std::path::PathBuf;
 
 pub const PORT: u16 = 5002;
 
-/// Base directory — where the executable lives.
+/// Base directory — the directory containing the executable.
+///
+/// IMPORTANT: Must use current_exe(), NOT current_dir().
+/// On Windows, users may launch via shortcuts or from a different CWD.
+/// Resolving from the exe location guarantees data/ and frontend/dist/
+/// are always found regardless of the working directory.
 pub fn base_dir() -> PathBuf {
-    std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
+    std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+        .unwrap_or_else(|| PathBuf::from("."))
 }
 
 pub fn data_dir() -> PathBuf {

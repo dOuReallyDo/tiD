@@ -1,6 +1,4 @@
 /target
-/data/sources/*.xlsx
-/data/sources/*.xlsb
 /data/inputs/*.xlsx
 /data/inputs/*.xlsb
 /data/inputs/*.xls
